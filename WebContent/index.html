@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartStudy — Resource Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sky-0: #EEF5FD;
+  --sky-1: #DAEAF9;
+  --sky-2: #B8D4F3;
+  --blue-mid: #3A7BD5;
+  --blue-deep: #1A4A8C;
+  --navy: #0F2245;
+  --text-primary: #0F1D38;
+  --text-secondary: #4A5E7A;
+  --text-muted: #7A93B0;
+  --white: #FFFFFF;
+  --gold: #C68B2E;
+  --gold-bg: #FDF3E0;
+  --gold-border: #E8C87A;
+  --green: #1A7A52;
+  --green-bg: #E3F5EE;
+}
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: linear-gradient(160deg, #EEF5FD 0%, #F5F9FF 40%, #EBF2FA 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 5%, rgba(58,123,213,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 85% 85%, rgba(26,74,140,0.07) 0%, transparent 55%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 3rem;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(14px);
+  border-bottom: 0.5px solid rgba(58,123,213,0.13);
+}
+.nav-brand {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--navy);
+}
+.nav-links {
+  display: flex; gap: 2rem; list-style: none;
+}
+.nav-links a {
+  font-size: 0.875rem; color: var(--text-secondary);
+  text-decoration: none; font-weight: 400;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--blue-mid); }
+
+/* nav right group */
+.nav-right {
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.nav-divider {
+  width: 1px; height: 18px;
+  background: rgba(58,123,213,0.2);
+}
+.vnr-label {
+  font-size: 0.78rem; color: var(--text-muted);
+  font-weight: 400; padding: 4px 12px;
+  border: 0.5px solid rgba(58,123,213,0.2);
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+}
+
+/* role pills */
+.role-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.8rem; font-weight: 500;
+  padding: 7px 16px; border-radius: 100px;
+  text-decoration: none; cursor: pointer;
+  transition: all 0.2s; border: 0.5px solid;
+  white-space: nowrap;
+}
+.role-pill.student {
+  background: var(--navy); color: var(--white);
+  border-color: var(--navy);
+}
+.role-pill.student:hover { background: var(--blue-deep); border-color: var(--blue-deep); }
+.role-pill.admin {
+  background: transparent; color: var(--navy);
+  border-color: rgba(15,34,69,0.3);
+}
+.role-pill.admin:hover {
+  background: var(--gold-bg); color: var(--gold);
+  border-color: var(--gold-border);
+}
+.pill-icon { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* ── HERO ── */
+.container {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 7rem 2rem 3rem;
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(58,123,213,0.08);
+  border: 0.5px solid rgba(58,123,213,0.25);
+  border-radius: 100px; padding: 6px 18px;
+  font-size: 11px; font-weight: 500; color: var(--blue-mid);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 2rem;
+  animation: fadeDown 0.5s ease both;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue-mid);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  font-weight: 700; text-align: center;
+  line-height: 1.08; margin-bottom: 0.75rem;
+  color: var(--navy);
+  animation: fadeDown 0.5s ease 0.08s both;
+}
+h1 em {
+  font-style: italic;
+  color: var(--blue-mid);
+}
+
+.subtitle {
+  text-align: center; color: var(--text-muted);
+  font-size: 1.05rem; font-weight: 300;
+  max-width: 440px; line-height: 1.65;
+  margin-bottom: 3rem;
+  animation: fadeDown 0.5s ease 0.16s both;
+}
+
+.email-bar {
+  display: flex; gap: 0; align-items: center;
+  background: var(--white);
+  border: 0.5px solid rgba(58,123,213,0.2);
+  border-radius: 100px;
+  padding: 6px 6px 6px 20px;
+  width: 100%; max-width: 420px;
+  margin-bottom: 3.5rem;
+  box-shadow: 0 2px 20px rgba(58,123,213,0.06);
+  animation: fadeDown 0.5s ease 0.22s both;
+}
+.email-bar input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem; color: var(--text-primary);
+  padding: 0;
+}
+.email-bar input::placeholder { color: var(--text-muted); }
+.email-bar button {
+  background: var(--navy);
+  color: #fff; border: none; border-radius: 100px;
+  padding: 10px 22px; font-size: 0.875rem; font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+.email-bar button:hover { background: var(--blue-mid); }
+
+/* stats moved up to fill space left by removed cards */
+.stats {
+  display: flex; gap: 3rem;
+  animation: fadeUp 0.5s ease 0.28s both;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 700;
+  color: var(--blue-mid);
+}
+.stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.03em; }
+
+.terminal-bar {
+  width: 100%; max-width: 620px;
+  background: var(--white);
+  border: 0.5px solid rgba(58,123,213,0.12);
+  border-radius: 16px;
+  margin-top: 3rem;
+  overflow: hidden;
+  animation: fadeUp 0.5s ease 0.34s both;
+  box-shadow: 0 4px 30px rgba(15,34,69,0.05);
+}
+.terminal-titlebar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 0.5px solid rgba(58,123,213,0.10);
+  background: rgba(238,245,253,0.6);
+}
+.terminal-dots { display: flex; gap: 6px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; }
+.dot-r { background: #FF5F57; }
+.dot-y { background: #FFBD2E; }
+.dot-g { background: #28C840; }
+.terminal-title {
+  font-size: 12px; color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+.live-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500; color: #2A9B5C;
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #2A9B5C; animation: pulse 2s infinite; }
+.terminal-body {
+  padding: 1rem 1.25rem;
+  font-family: 'DM Mono', 'SF Mono', monospace;
+  font-size: 12px; line-height: 1.8;
+  color: var(--text-secondary);
+  min-height: 70px;
+}
+.terminal-body .line-accent { color: var(--blue-mid); }
+.terminal-body .line-dim { color: var(--text-muted); }
+
+/* ── SHARED SECTION STYLES ── */
+section {
+  position: relative; z-index: 1;
+  width: 100%; padding: 6rem 2rem;
+}
+.section-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.section-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(58,123,213,0.07);
+  border: 0.5px solid rgba(58,123,213,0.2);
+  border-radius: 100px; padding: 5px 16px;
+  font-size: 11px; font-weight: 500; color: var(--blue-mid);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  font-weight: 700; color: var(--navy);
+  line-height: 1.15; margin-bottom: 1rem;
+}
+.section-title em { font-style: italic; color: var(--blue-mid); }
+.section-sub {
+  color: var(--text-muted); font-size: 1rem;
+  font-weight: 300; line-height: 1.65;
+  max-width: 500px; margin-bottom: 3.5rem;
+}
+
+/* ── HOW IT WORKS ── */
+#how-it-works {
+  background: var(--white);
+  border-top: 0.5px solid rgba(58,123,213,0.08);
+  border-bottom: 0.5px solid rgba(58,123,213,0.08);
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  position: relative;
+}
+.steps-grid::before {
+  content: '';
+  position: absolute;
+  top: 36px; left: calc(16.67% + 1rem); right: calc(16.67% + 1rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(58,123,213,0.25) 20%, rgba(58,123,213,0.25) 80%, transparent);
+  z-index: 0;
+}
+.step {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 0 1.5rem;
+  position: relative; z-index: 1;
+}
+.step-num {
+  width: 72px; height: 72px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem; font-weight: 700;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+.step:nth-child(1) .step-num { background: var(--sky-1); color: var(--blue-deep); border: 1px solid rgba(58,123,213,0.2); }
+.step:nth-child(2) .step-num { background: var(--blue-mid); color: var(--white); }
+.step:nth-child(3) .step-num { background: var(--navy); color: var(--white); }
+.step h3 {
+  font-size: 1rem; font-weight: 500; color: var(--navy);
+  margin-bottom: 0.5rem;
+}
+.step p {
+  font-size: 0.875rem; color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ── FEATURES ── */
+#features {
+  background: linear-gradient(170deg, #F0F6FD 0%, #EBF2FA 100%);
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+.feature-card {
+  background: var(--white);
+  border: 0.5px solid rgba(58,123,213,0.12);
+  border-radius: 20px; padding: 2rem 1.75rem;
+  transition: all 0.25s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 35px rgba(58,123,213,0.09);
+  border-color: rgba(58,123,213,0.25);
+}
+.feature-icon {
+  width: 50px; height: 50px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 1.25rem;
+}
+.feature-card:nth-child(1) .feature-icon { background: var(--sky-1); }
+.feature-card:nth-child(2) .feature-icon { background: var(--gold-bg); }
+.feature-card:nth-child(3) .feature-icon { background: var(--green-bg); }
+.feature-card:nth-child(4) .feature-icon { background: #F0EAFD; }
+.feature-card:nth-child(5) .feature-icon { background: #FDE8E8; }
+.feature-card:nth-child(6) .feature-icon { background: var(--sky-0); }
+.feature-tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; border-radius: 100px;
+  padding: 3px 10px; margin-bottom: 0.75rem;
+}
+.tag-blue  { background: rgba(58,123,213,0.08); color: var(--blue-mid); }
+.tag-gold  { background: rgba(198,139,46,0.10); color: var(--gold); }
+.tag-green { background: rgba(26,122,82,0.09); color: var(--green); }
+.tag-purple{ background: rgba(100,72,185,0.09); color: #6448B9; }
+.tag-red   { background: rgba(200,60,60,0.09); color: #C83C3C; }
+.tag-navy  { background: rgba(15,34,69,0.07); color: var(--navy); }
+.feature-card h3 {
+  font-size: 1rem; font-weight: 500; color: var(--navy);
+  margin-bottom: 0.45rem;
+}
+.feature-card p {
+  font-size: 0.855rem; color: var(--text-muted); line-height: 1.6;
+}
+
+/* ── FILE FORMATS ── */
+#formats {
+  background: var(--white);
+  border-top: 0.5px solid rgba(58,123,213,0.08);
+  border-bottom: 0.5px solid rgba(58,123,213,0.08);
+}
+.formats-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 4rem; align-items: center;
+}
+.format-pills {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--sky-0);
+  border: 0.5px solid rgba(58,123,213,0.18);
+  border-radius: 100px; padding: 8px 18px;
+  font-size: 0.875rem; font-weight: 500; color: var(--navy);
+  transition: all 0.2s;
+}
+.pill:hover {
+  background: var(--sky-1);
+  border-color: rgba(58,123,213,0.35);
+  transform: translateY(-2px);
+}
+.pill-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.pill-pdf  { background:#E84040; }
+.pill-ppt  { background:#D96B2D; }
+.pill-doc  { background:#2E72BE; }
+.pill-img  { background:#2A9B5C; }
+.pill-vid  { background:#7B40C8; }
+.pill-link { background:#C68B2E; }
+
+.formats-visual {
+  background: linear-gradient(140deg, var(--sky-0) 0%, #EAF2FD 100%);
+  border: 0.5px solid rgba(58,123,213,0.12);
+  border-radius: 24px; padding: 2rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.file-row {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--white);
+  border: 0.5px solid rgba(58,123,213,0.1);
+  border-radius: 12px; padding: 0.875rem 1.1rem;
+  transition: all 0.2s;
+}
+.file-row:hover {
+  border-color: rgba(58,123,213,0.25);
+  transform: translateX(4px);
+}
+.file-ext {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.ext-pdf { background:#FDEAEA; color:#C83C3C; }
+.ext-ppt { background:#FDF0E5; color:#C86B2E; }
+.ext-doc { background:#E8F0FD; color:#2E5AC8; }
+.ext-img { background:#E5FDF0; color:#1A7A52; }
+.file-info { flex: 1; }
+.file-name { font-size: 0.875rem; font-weight: 500; color: var(--navy); }
+.file-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+.file-badge {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.05em;
+  text-transform: uppercase; border-radius: 100px; padding: 3px 10px;
+}
+.badge-new { background: var(--green-bg); color: var(--green); }
+.badge-pop { background: var(--sky-1); color: var(--blue-deep); }
+
+/* ── TESTIMONIALS ── */
+#testimonials {
+  background: linear-gradient(160deg, #EEF5FD 0%, #F2F7FD 100%);
+}
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem; margin-bottom: 3.5rem;
+}
+.testimonial-card {
+  background: var(--white);
+  border: 0.5px solid rgba(58,123,213,0.12);
+  border-radius: 20px; padding: 1.75rem;
+  transition: all 0.25s ease;
+}
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 35px rgba(58,123,213,0.09);
+}
+.stars {
+  display: flex; gap: 3px; margin-bottom: 1rem;
+}
+.star {
+  width: 12px; height: 12px; border-radius: 2px;
+  background: var(--gold);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+.testimonial-quote {
+  font-size: 0.9rem; color: var(--text-secondary);
+  line-height: 1.65; margin-bottom: 1.25rem;
+  font-style: italic;
+}
+.testimonial-author {
+  display: flex; align-items: center; gap: 10px;
+}
+.author-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500;
+  flex-shrink: 0;
+}
+.av-1 { background: var(--sky-1); color: var(--blue-deep); }
+.av-2 { background: var(--gold-bg); color: var(--gold); }
+.av-3 { background: var(--green-bg); color: var(--green); }
+.author-name { font-size: 0.875rem; font-weight: 500; color: var(--navy); }
+.author-role { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+
+/* ── CTA BANNER ── */
+#cta-banner {
+  padding: 0 2rem 6rem;
+  position: relative; z-index: 1;
+}
+.cta-card {
+  max-width: 1000px; margin: 0 auto;
+  background: var(--navy);
+  border-radius: 28px; padding: 4rem 3.5rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+  position: relative; overflow: hidden;
+}
+.cta-card::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(58,123,213,0.18);
+  pointer-events: none;
+}
+.cta-card::after {
+  content: '';
+  position: absolute; bottom: -80px; left: 30%;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(26,74,140,0.25);
+  pointer-events: none;
+}
+.cta-text { position: relative; z-index: 1; }
+.cta-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700; color: var(--white);
+  margin-bottom: 0.5rem; line-height: 1.2;
+}
+.cta-text h2 em { font-style: italic; color: var(--sky-2); }
+.cta-text p {
+  font-size: 0.95rem; color: rgba(255,255,255,0.6);
+  font-weight: 300; max-width: 380px; line-height: 1.6;
+}
+.cta-actions {
+  display: flex; flex-direction: column; gap: 0.875rem;
+  flex-shrink: 0; position: relative; z-index: 1;
+}
+.btn-primary {
+  background: var(--white);
+  color: var(--navy); border: none;
+  border-radius: 100px; padding: 13px 30px;
+  font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  transition: all 0.2s;
+  text-align: center;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: var(--sky-1); }
+.btn-ghost {
+  background: transparent;
+  color: rgba(255,255,255,0.75);
+  border: 0.5px solid rgba(255,255,255,0.25);
+  border-radius: 100px; padding: 12px 30px;
+  font-size: 0.9rem; font-weight: 400;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  transition: all 0.2s;
+  text-align: center;
+  white-space: nowrap;
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.45);
+  color: var(--white);
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  background: var(--white);
+  border-top: 0.5px solid rgba(58,123,213,0.1);
+  padding: 2.5rem 3rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-brand {
+  font-size: 0.875rem; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--navy);
+}
+.footer-links {
+  display: flex; gap: 2rem; list-style: none;
+}
+.footer-links a {
+  font-size: 0.8rem; color: var(--text-muted);
+  text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--blue-mid); }
+.footer-copy { font-size: 0.78rem; color: var(--text-muted); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
+.reveal {
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .steps-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .steps-grid::before { display: none; }
+  .formats-layout { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .cta-card { flex-direction: column; text-align: center; padding: 3rem 2rem; }
+  .cta-text p { max-width: 100%; }
+  .cta-actions { flex-direction: row; }
+  .vnr-label { display: none; }
+  .nav-divider { display: none; }
+}
+@media (max-width: 620px) {
+  nav { padding: 1rem 1.25rem; }
+  .nav-links { display: none; }
+  .role-pill span { display: none; }
+  .role-pill { padding: 7px 12px; }
+  .stats { gap: 2rem; }
+  .terminal-bar { max-width: 100%; }
+  .features-grid { grid-template-columns: 1fr; }
+  section { padding: 4rem 1.25rem; }
+  .cta-card { border-radius: 20px; }
+  .cta-actions { flex-direction: column; width: 100%; }
+  footer { flex-direction: column; gap: 1.25rem; text-align: center; padding: 2rem 1.25rem; }
+  .footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <span class="nav-brand">SmartStudy</span>
+
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#formats">Resources</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <span class="vnr-label">VNR VJIET</span>
+    <div class="nav-divider"></div>
+
+    <!-- Student Portal pill -->
+    <a href="#" class="role-pill student" id="student-link">
+      <svg class="pill-icon" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 1L13 4.5V6C13 9.5 10.5 12.5 7 13.5C3.5 12.5 1 9.5 1 6V4.5L7 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+        <circle cx="7" cy="6" r="1.8" fill="currentColor" opacity="0.75"/>
+      </svg>
+      <span>Student Portal</span>
+    </a>
+
+    <!-- Admin pill -->
+    <a href="#" class="role-pill admin" id="admin-link">
+      <svg class="pill-icon" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.75 2.75l1.06 1.06M10.19 10.19l1.06 1.06M2.75 11.25l1.06-1.06M10.19 3.81l1.06-1.06" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span>Admin</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="container">
+  <div class="badge">
+    <span class="badge-dot"></span>
+    Academic Resource Hub
+  </div>
+
+  <h1>Share every note into<br><em>academic excellence.</em></h1>
+  <p class="subtitle">Capture study materials, peer resources, and course content — then route each to the right student in seconds.</p>
+
+  <div class="email-bar">
+    <input type="email" placeholder="Enter your university email" />
+    <button>Get Access</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">4,200+</div>
+      <div class="stat-label">Students</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">18k+</div>
+      <div class="stat-label">Resources shared</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">60+</div>
+      <div class="stat-label">Departments</div>
+    </div>
+  </div>
+
+  <div class="terminal-bar">
+    <div class="terminal-titlebar">
+      <div class="terminal-dots">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+      </div>
+      <span class="terminal-title">smartstudy · resource feed</span>
+      <div class="live-badge"><div class="live-dot"></div> Live</div>
+    </div>
+    <div class="terminal-body" id="terminal-body">
+      <div><span class="line-accent">→</span> Data_Structures_Unit3.pdf uploaded by <span class="line-accent">arjun_s</span></div>
+      <div class="line-dim">  CSE · Year 2 · 2.4 MB · just now</div>
+      <div style="margin-top:6px;"><span class="line-accent">→</span> OS_Lecture_Week7.pptx shared to <span class="line-accent">CSE-3A</span></div>
+      <div class="line-dim">  8.1 MB · 2 min ago · 34 views</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-badge">How it works</div>
+      <h2 class="section-title">Three steps to <em>smarter</em> studying</h2>
+      <p class="section-sub">From upload to discovery — SmartStudy keeps academic resources organized, searchable, and always within reach.</p>
+    </div>
+    <div class="steps-grid reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Upload your materials</h3>
+        <p>Students and faculty upload PDFs, slides, and notes directly from any device. Files are indexed and made searchable instantly.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Organize by cohort</h3>
+        <p>Admins assign resources to specific branches, semesters, and subjects. Every student sees exactly what's relevant to their course.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Access &amp; collaborate</h3>
+        <p>Browse, download, and build on shared resources. Peer notes and faculty materials live in one unified, always-synced library.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-badge">Features</div>
+      <h2 class="section-title">Everything your campus <em>needs</em></h2>
+      <p class="section-sub">Built specifically for university workflows — not generic file storage.</p>
+    </div>
+    <div class="features-grid reveal">
+      <div class="feature-card">
+        <div class="feature-icon">📤</div>
+        <div class="feature-tag tag-blue">Upload</div>
+        <h3>Drag-and-drop uploads</h3>
+        <p>Share notes in seconds with bulk upload support. PDFs, presentations, and images are auto-converted for in-browser preview.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-tag tag-navy">Search</div>
+        <h3>Full-text search</h3>
+        <p>Find any document by keyword, subject, or uploader. Search works inside PDFs and slide decks, not just file names.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏷️</div>
+        <div class="feature-tag tag-gold">Organize</div>
+        <h3>Smart categorization</h3>
+        <p>Resources are automatically tagged by branch, year, and subject. Admins can override and create custom collections.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <div class="feature-tag tag-purple">Peers</div>
+        <h3>Peer collaboration</h3>
+        <p>Students can co-author notes, leave comments, and flag helpful resources. The best content rises to the top.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-tag tag-red">Alerts</div>
+        <h3>Live sync notifications</h3>
+        <p>Get notified the moment new resources are added to your cohort — no more hunting through email threads for attachments.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-tag tag-navy">Admin</div>
+        <h3>Access control</h3>
+        <p>Admins approve uploads, moderate content, and set visibility rules per department. Full audit trail included.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FILE FORMATS ── -->
+<section id="formats">
+  <div class="section-inner">
+    <div class="formats-layout">
+      <div class="reveal">
+        <div class="section-badge">Supported Formats</div>
+        <h2 class="section-title">Every format<br>your course <em>uses</em></h2>
+        <p class="section-sub">No converting files before uploading. SmartStudy accepts whatever your professors hand out.</p>
+        <div class="format-pills">
+          <div class="pill"><span class="pill-dot pill-pdf"></span>PDF Documents</div>
+          <div class="pill"><span class="pill-dot pill-ppt"></span>PowerPoint Slides</div>
+          <div class="pill"><span class="pill-dot pill-doc"></span>Word Documents</div>
+          <div class="pill"><span class="pill-dot pill-img"></span>Images &amp; Diagrams</div>
+          <div class="pill"><span class="pill-dot pill-vid"></span>Video Links</div>
+          <div class="pill"><span class="pill-dot pill-link"></span>External Resources</div>
+        </div>
+      </div>
+      <div class="formats-visual reveal">
+        <div class="file-row">
+          <div class="file-ext ext-pdf">PDF</div>
+          <div class="file-info">
+            <div class="file-name">Data_Structures_Unit3.pdf</div>
+            <div class="file-meta">CSE · Year 2 · 2.4 MB</div>
+          </div>
+          <span class="file-badge badge-new">New</span>
+        </div>
+        <div class="file-row">
+          <div class="file-ext ext-ppt">PPT</div>
+          <div class="file-info">
+            <div class="file-name">OS_Lecture_Week7.pptx</div>
+            <div class="file-meta">CSE · Year 3 · 8.1 MB</div>
+          </div>
+          <span class="file-badge badge-pop">Popular</span>
+        </div>
+        <div class="file-row">
+          <div class="file-ext ext-doc">DOC</div>
+          <div class="file-info">
+            <div class="file-name">DBMS_Assignment_Guide.docx</div>
+            <div class="file-meta">CSE · Year 2 · 340 KB</div>
+          </div>
+          <span class="file-badge badge-new">New</span>
+        </div>
+        <div class="file-row">
+          <div class="file-ext ext-img">IMG</div>
+          <div class="file-info">
+            <div class="file-name">Network_Topology_Diagram.png</div>
+            <div class="file-meta">ECE · Year 3 · 780 KB</div>
+          </div>
+          <span class="file-badge badge-pop">Popular</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section id="testimonials">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-badge">Student Voices</div>
+      <h2 class="section-title">Loved by students <em>across</em> campus</h2>
+      <p class="section-sub" style="margin:0 auto 3.5rem;">Real feedback from VNR VJIET students using SmartStudy every day.</p>
+    </div>
+    <div class="testimonials-grid reveal">
+      <div class="testimonial-card">
+        <div class="stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+        </div>
+        <p class="testimonial-quote">"I used to spend hours hunting for notes before exams. SmartStudy changed that completely — everything is in one place and actually searchable."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar av-1">AS</div>
+          <div>
+            <div class="author-name">Arjun Sharma</div>
+            <div class="author-role">B.Tech CSE · Year 3</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+        </div>
+        <p class="testimonial-quote">"The peer notes feature is a game changer. I can see what toppers are uploading and build on their notes with my own additions."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar av-2">PR</div>
+          <div>
+            <div class="author-name">Priya Reddy</div>
+            <div class="author-role">B.Tech ECE · Year 2</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+        </div>
+        <p class="testimonial-quote">"As a CR, managing what my class has access to is so much simpler. I upload once and everyone gets notified immediately."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar av-3">KM</div>
+          <div>
+            <div class="author-name">Kavya Mehta</div>
+            <div class="author-role">B.Tech IT · Year 4 · CR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA BANNER ── -->
+<div id="cta-banner">
+  <div class="cta-card reveal">
+    <div class="cta-text">
+      <h2>Ready to study <em>smarter</em>?</h2>
+      <p>Join thousands of VNR VJIET students already sharing resources, collaborating on notes, and acing their exams.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="#" class="btn-primary" id="cta-student">Get started free</a>
+      <a href="#how-it-works" class="btn-ghost">See how it works</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span class="footer-brand">SmartStudy</span>
+  <ul class="footer-links">
+    <li><a href="#">About</a></li>
+    <li><a href="#">Features</a></li>
+    <li><a href="#">Contact</a></li>
+    <li><a href="#">Privacy</a></li>
+  </ul>
+  <span class="footer-copy">© 2025 SmartStudy · VNR VJIET</span>
+</footer>
+
+<script>
+  // Role pill hrefs
+  var base = window.location.pathname.split('/')[1] || '';
+  var prefix = base ? '/' + base : '';
+  document.getElementById('student-link').href = prefix + '/jsp/login.jsp?role=student';
+  document.getElementById('admin-link').href   = prefix + '/jsp/login.jsp?role=admin';
+  document.getElementById('cta-student').href  = prefix + '/jsp/login.jsp?role=student';
+
+  // Scroll reveal
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+</script>
+</body>
+</html>
